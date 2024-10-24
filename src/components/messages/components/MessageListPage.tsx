@@ -1,20 +1,12 @@
 import React, {useState} from "react";
 import Form from 'react-bootstrap/Form';
 import {
-  keepPreviousData,
-  useQuery,
-} from '@tanstack/react-query'
-import {
   ColumnDef,
-  PaginationState,
-  flexRender,
-  getCoreRowModel,
-  useReactTable, FilterFn, getFilteredRowModel, getSortedRowModel, getPaginationRowModel,
 } from '@tanstack/react-table'
 import {fetchData, Message} from "../controllers/fetchData";
 import MessagesModalView from "./MessagesModalView";
-import {rankItem} from "@tanstack/match-sorter-utils";
 import RadioButtonsGroup from "../../core/components/RadioButtonsGroup";
+import TableSingle from "../../core/components/Table";
 
 import '../styles/message_list.css';
 
@@ -93,47 +85,12 @@ function MessageListPage() {
     []
   )
 
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
-
-  const dataQuery = useQuery({
-    queryKey: ['data', pagination],
-    queryFn: () => fetchData(pagination),
-    placeholderData: keepPreviousData, // don't have 0 rows flash while changing pages/loading next page
-  })
-
-  const defaultData = React.useMemo(() => [], [])
-  const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-    // Rank the item
-    const itemRank = rankItem(row.getValue(columnId), value)
-
-    // Store the itemRank info
-    addMeta({
-      itemRank,
-    })
-
-    // Return if the item should be filtered in/out
-    return itemRank.passed
-  }
-  const [globalFilter, setGlobalFilter] = useState<any>("")
   const [globalFilterSearch, setGlobalFilterSearch] = useState<any>("")
-  const table = useReactTable({
-    data: dataQuery.data?.allData ?? defaultData,
-    columns,
-    state: {
-      pagination,
-      globalFilter,
-    },
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: fuzzyFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  })
+
+  let table:any;
+  const initTableFunction = (data: any) => {
+      table = data.table;
+  }
 
   const globalFilterFunction = (e: any, type: any) => {
     if (type === 'status') {
@@ -146,7 +103,6 @@ function MessageListPage() {
     }
 
     if (type === 'search') {
-      console.log('search')
       setRadioValueSubTypes('All')
       table.resetGlobalFilter();
 
@@ -155,12 +111,11 @@ function MessageListPage() {
     }
 
   }
+
     const handleCloseModalView = () => setShow(false);
     const handleShowModalView = function (row: any) {
-        return () => {
-            currentRow = { ...row?.original };
-            return setShow(true)
-        }
+      currentRow = { ...row?.original };
+      return setShow(true)
     };
 
   return (
@@ -200,117 +155,21 @@ function MessageListPage() {
         </div>
 
       </div>
-      <div className="table">
-        <table>
-          <thead>
-          {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map(header => {
-                return (
-                  <th key={header.id} colSpan={header.colSpan}>
-                    {header.isPlaceholder ? null : (
-                      <div>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </div>
-                    )}
-                  </th>
-                )
-              })}
-            </tr>
-          ))}
-          </thead>
-          <tbody>
-          {table.getRowModel().rows.map(row => {
-            return (
-                <tr key={row.id} onClick={handleShowModalView(row)}>
-                  {row.getVisibleCells().map(cell => {
-                    return (
-                      <td key={cell.id} >
 
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-            )
-          })}
-          </tbody>
-        </table>
-          <MessagesModalView data={currentRow} show={show} handleShow={ handleShowModalView} handleClose={handleCloseModalView}/>
-        <div className="pagination flex items-center gap-2">
-          <button
-            className="border rounded p-1"
-            onClick={() => table.firstPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {'<<'}
-          </button>
-          <button
-            className="border rounded p-1"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {'<'}
-          </button>
-          <button
-            className="border rounded p-1"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            {'>'}
-          </button>
-          <button
-            className="border rounded p-1"
-            onClick={() => table.lastPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            {'>>'}
-          </button>
-          <span className="flex items-center gap-1">
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of{' '}
-            {table.getPageCount().toLocaleString()}
-          </strong>
-        </span>
-          <span className=" flex items-center gap-1">
-          | Go to page:
-          <input
-            type="number"
-            min="1"
-            max={table.getPageCount()}
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              table.setPageIndex(page)
-            }}
-            className="border p-1 rounded w-16"
-          />
-        </span>
-          <select
-            value={table.getState().pagination.pageSize}
-            onChange={e => {
-              table.setPageSize(Number(e.target.value))
-            }}
-          >
-            {[10, 20, 30, 40, 50].map(pageSize => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
+      <TableSingle
+        columnsData={columns}
+        fetchFunc={fetchData}
+        rowActionFunc={handleShowModalView}
+        initFunc={initTableFunction}
+      ></TableSingle>
 
-        </div>
-        <div className="loading">
-          {dataQuery.isFetching ? 'Loading...' : null}
-        </div>
-      </div>
+      <MessagesModalView
+        data={currentRow}
+        show={show}
+        handleShow={ handleShowModalView}
+        handleClose={handleCloseModalView}
+      />
+
     </div>
   );
 }

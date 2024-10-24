@@ -58,7 +58,7 @@ export function makeData(...lens: number[]) {
 
 
 const data = makeData(500);
-export async function fetchDataDevices(options: {
+export async function fetchDataTransactions(options: {
   pageIndex: number
   pageSize: number
 }) {

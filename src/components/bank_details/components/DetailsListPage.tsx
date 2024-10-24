@@ -28,18 +28,22 @@ import {Modal} from "react-bootstrap";
 import {redirect, redirectDocument, useNavigate} from "react-router-dom";
 import {rankItem} from "@tanstack/match-sorter-utils";
 import RadioButtonsGroup from "../../core/components/RadioButtonsGroup";
+import TableSingle from "../../core/components/Table";
+import {fetchDataDevices} from "../../devices/controllers/fetchData-devices";
 
 
 export default function DetailsListPage() {
-  const [radioValue1, setRadioValue1] = useState(2);
-  const radios1 = [
+  let table: any;
+  const navigate = useNavigate();
+  const [show, setShow] = useState(false);
+
+
+  const radios = [
     { name: 'Все', value: 'all' },
     { name: 'Активные', value: 'active' },
     { name: 'Не активные', value: 'disable' },
     { name: 'Заблокированные', value: 'block' }
   ];
-
-
 
   const columns = React.useMemo<ColumnDef<BankDetails>[]>(
     () => [
@@ -89,49 +93,12 @@ export default function DetailsListPage() {
   )
 
 
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
 
-  const dataQuery = useQuery({
-    queryKey: ['data', pagination],
-    queryFn: () => fetchDataDetails_list(pagination),
-    placeholderData: keepPreviousData, // don't have 0 rows flash while changing pages/loading next page
-  })
 
-  const defaultData = React.useMemo(() => [], [])
 
-  const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-    // Rank the item
-    const itemRank = rankItem(row.getValue(columnId), value)
-
-    // Store the itemRank info
-    addMeta({
-      itemRank,
-    })
-
-    // Return if the item should be filtered in/out
-    return itemRank.passed
+  const initTableFunction = (data: any) => {
+    table = data.table;
   }
-  const [globalFilter, setGlobalFilter] = useState<any>("")
-
-  const table = useReactTable({
-    data: dataQuery.data?.allData ?? defaultData,
-    columns,
-    state: {
-      pagination,
-      globalFilter,
-    },
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: fuzzyFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  })
-
   const globalFilterFunction = (e:any) => {
     if (e.target.value === 'all') {
       table.resetGlobalFilter();
@@ -140,13 +107,10 @@ export default function DetailsListPage() {
     }
   }
 
-  const [show, setShow] = useState(false);
-  const navigate = useNavigate();
+
 
   const redirectToDetailsSingle = function (row: any) {
-    return  () => {
-      navigate("/main/details/1");
-    }
+    navigate("/main/details/1");
   }
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -238,12 +202,25 @@ export default function DetailsListPage() {
       <div className="table-content">
         <div className="filters">
 
-          <RadioButtonsGroup
-            id="groupRadio"
-            defaultValue="all"
-            radios={radios1}
-            triggerFunc={globalFilterFunction}
-          ></RadioButtonsGroup>
+          <div className="main_filter">
+            <RadioButtonsGroup
+              id="groupRadio"
+              defaultValue="all"
+              radios={radios}
+              triggerFunc={globalFilterFunction}
+            ></RadioButtonsGroup>
+
+            <div className="main_filter-bank">
+              <Form.Label htmlFor="messages_search">Банк:</Form.Label>
+              <Form.Select aria-label="Выберите трафик" >
+                <option>Выберите банк</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+              </Form.Select>
+            </div>
+          </div>
+
 
           <div className="search">
             <div className="search_title">
@@ -258,117 +235,14 @@ export default function DetailsListPage() {
           </div>
 
         </div>
-        <div className="table">
-          <table>
-            <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
-                  return (
-                    <th key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder ? null : (
-                        <div>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </div>
-                      )}
-                    </th>
-                  )
-                })}
-              </tr>
-            ))}
-            </thead>
-            <tbody>
-            {table.getRowModel().rows.map(row => {
-              return (
-                <tr key={row.id} onClick={redirectToDetailsSingle(row)}>
 
-                  {row.getVisibleCells().map(cell => {
-                    return (
-                      <td key={cell.id} >
+        <TableSingle
+          columnsData={columns}
+          fetchFunc={fetchDataDetails_list}
+          rowActionFunc={redirectToDetailsSingle}
+          initFunc={initTableFunction}
+        />
 
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              )
-            })}
-            </tbody>
-          </table>
-          <div className="pagination flex items-center gap-2">
-            <button
-              className="border rounded p-1"
-              onClick={() => table.firstPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              {'<<'}
-            </button>
-            <button
-              className="border rounded p-1"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              {'<'}
-            </button>
-            <button
-              className="border rounded p-1"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              {'>'}
-            </button>
-            <button
-              className="border rounded p-1"
-              onClick={() => table.lastPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              {'>>'}
-            </button>
-            <span className="flex items-center gap-1">
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of{' '}
-            {table.getPageCount().toLocaleString()}
-          </strong>
-        </span>
-            <span className=" flex items-center gap-1">
-          | Go to page:
-          <input
-            type="number"
-            min="1"
-            max={table.getPageCount()}
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              table.setPageIndex(page)
-            }}
-            className="border p-1 rounded w-16"
-          />
-        </span>
-            <select
-              value={table.getState().pagination.pageSize}
-              onChange={e => {
-                table.setPageSize(Number(e.target.value))
-              }}
-            >
-              {[10, 20, 30, 40, 50].map(pageSize => (
-                <option key={pageSize} value={pageSize}>
-                  Show {pageSize}
-                </option>
-              ))}
-            </select>
-
-          </div>
-          <div className="loading">
-            {dataQuery.isFetching ? 'Loading...' : null}
-          </div>
-        </div>
       </div>
     </div>
   );

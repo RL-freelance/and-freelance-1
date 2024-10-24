@@ -1,0 +1,66 @@
+.table table {
+  width: 100%;
+}
+
+.table table td,
+.table table th {
+  padding: 10px;
+}
+.table {
+  margin-top: 20px;
+}
+.table thead div {
+  color: #2525258f;
+}
+
+.table tbody td div {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+}
+.table tbody td div span:first-child {
+  font-size: 40px;
+  line-height: 10px;
+  top: 0px;
+  position: absolute;
+}
+.table tbody td div span:nth-child(2) {
+  margin-left: 20px;
+}
+.table tbody td div.red,
+.table tbody td div.green,
+.table tbody td div.gray {
+  border-radius: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  display: inline-block;
+  padding: 5px 10px;
+}
+
+.table tbody td div.red {
+  background-color: rgba(253, 93, 93, 0.15);
+}
+.table tbody td div.green {
+  background-color: rgba(0, 128, 0, 0.15);
+}
+.table tbody td div.gray {
+  background-color: rgba(128, 128, 128, 0.15);
+}
+
+.pagination {
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.loading {
+  min-height: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

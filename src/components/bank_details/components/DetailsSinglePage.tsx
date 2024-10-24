@@ -4,88 +4,90 @@ import "./../styles/details_single.css";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCirclePlus, faPlus, faRandom} from "@fortawesome/free-solid-svg-icons";
 import Button from "react-bootstrap/Button";
-import {BankDetails} from "../controllers/fetchData-details_list";
+import {BankDetails, fetchDataDetails_list} from "../controllers/fetchData-details_list";
 import {Modal} from "react-bootstrap";
 import Form from "react-bootstrap/Form";
+import TableSingle from "../../core/components/Table";
+import {ColumnDef} from "@tanstack/react-table";
+import {fetchDataTransactions, Transaction} from "../../transactions/controllers/fetchData-transactions";
+import RadioButtonsGroup from "../../core/components/RadioButtonsGroup";
+import DetailsEditModal from "./modals/DetailsEditModal";
+import {faker} from "@faker-js/faker";
+import { defaultData } from "../controllers/fetchData-details_list";
+
 
 export default function DetailsSinglePage({ data }: {data?: BankDetails}) {
+  let table: any;
   const [show, setShow] = useState(false);
+
+  const radios = [
+    { name: 'Сделки', value: 'transactions' },
+    { name: 'Сообщения', value: 'message' },
+    { name: 'Пуши', value: 'pushes' },
+  ];
+
+  const columns = React.useMemo<ColumnDef<Transaction>[]>(
+    () => [
+      {
+        accessorKey: 'id',
+        header: 'Заявка',
+        footer: props => props.column.id,
+      },
+      {
+        accessorKey: 'date',
+        header: 'Дата сделки',
+        footer: props => props.column.id,
+      },
+      {
+        accessorKey: 'status',
+        header: 'Статус',
+        footer: props => props.column.id,
+        cell: (info) => <div className={
+          info.getValue() === 'error' ? 'red status' :
+            info.getValue() === 'active' ? 'gray status' : 'green status'
+        }><span>.</span><span>{ (info.getValue()?.toString() || '')?.replace('_', ' ') }</span></div>,
+      },
+      {
+        accessorKey: 'summStart',
+        header: 'Сумма',
+        footer: props => props.column.id,
+        cell: (info) => (<div className="summStart">
+          <span className="summStartSpan">{ (info.getValue()?.toString() || '') } USDT</span>
+        </div>),
+      },
+      {
+        accessorKey: 'summToSend',
+        header: 'Сумма к начислению (-комиссия)',
+        footer: props => props.column.id,
+        cell: (info) => <div className="summToSend">
+          <span>{ (info.getValue()?.toString() || '') } USDT</span>
+        </div>,
+      },
+      {
+        accessorKey: 'exchangeRate',
+        header: 'Курс',
+        footer: props => props.column.id,
+        cell: (info) => <div className="exchangeRate">
+          <span>1 USDT = </span><span>{ (info.getValue()?.toString() || '') }</span>
+        </div>,
+      }
+    ],
+    []
+  )
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const initTableFunction = (data: any) => {
+    table = data.table;
+  }
+
+  const globalFilterFunction = () => {}
+
   return (
     <div className="details_single">
 
-      <Modal show={show} onHide={handleClose} className="new_details">
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <FontAwesomeIcon icon={faCirclePlus} />
-            <div className="title">Редактирование реквизита</div>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="new_details-body">
-          <div className="name field">
-            <Form.Label htmlFor="messages_search">Имя реквизита:</Form.Label>
-            <Form.Control
-                type="text"
-                placeholder="Придумайте название"
-                id="device_name"
-            />
-          </div>
-          <div className="device field">
-            <Form.Label htmlFor="messages_search">Устройство:</Form.Label>
-            <Form.Select aria-label="Выберите устройство">
-              <option>Выберите устройство</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
-            </Form.Select>
-          </div>
-          <div className="bank field">
-            <Form.Label htmlFor="messages_search">Банк:</Form.Label>
-            <Form.Select aria-label="Выберите банк">
-              <option>Выберите банк</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
-            </Form.Select>
-          </div>
-          <div className="trafic field">
-            <Form.Label htmlFor="messages_search">Трафик:</Form.Label>
-            <Form.Select aria-label="Выберите трафик">
-              <option>Выберите трафик</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
-            </Form.Select>
-          </div>
-          <div className="type field">
-            <Form.Label htmlFor="messages_search">Тип реквизита:</Form.Label>
-            <Form.Select aria-label="Выберите тип риквизита">
-              <option>Выберите тип реквизита</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
-            </Form.Select>
-          </div>
-          <div className="card_number field" >
-            <Form.Label htmlFor="messages_search">Номер карты:</Form.Label>
-            <Form.Control
-                type="text"
-                placeholder="0000 0000 0000 0000"
-                id="device_name"
-            />
-          </div>
-        </Modal.Body>
-        <Modal.Footer className="modal_footer">
-          <Button variant="outline-dark" onClick={handleClose}>
-            Отмена
-          </Button>
-          <Button variant="primary" onClick={handleClose}>
-            Добавить
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+      <DetailsEditModal data={defaultData} handleClose={handleClose} handleShow={handleShow} show={show} />
 
       <div className="details_single-header">
         <div className="item">
@@ -162,6 +164,20 @@ export default function DetailsSinglePage({ data }: {data?: BankDetails}) {
         </div>
 
       </div>
+
+      <RadioButtonsGroup
+        id="groupRadio"
+        defaultValue="transactions"
+        radios={radios}
+        triggerFunc={globalFilterFunction}
+      ></RadioButtonsGroup>
+
+      <TableSingle
+        columnsData={columns}
+        fetchFunc={fetchDataTransactions}
+        initFunc={initTableFunction}
+      />
+
     </div>
   );
 }

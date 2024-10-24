@@ -43,3 +43,9 @@
 .new_details-body .field {
   margin: 10px 0;
 }
+
+.main_filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}

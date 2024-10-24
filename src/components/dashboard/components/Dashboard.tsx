@@ -5,8 +5,6 @@ import '../styles/dashboard.css';
 import RadioButtonsGroup from "../../core/components/RadioButtonsGroup";
 import { data } from '../controllers/chart_data';
 
-
-
 export default function Dashboard() {
   const [radioValue, setRadioValue] = useState('hour');
 
@@ -29,6 +27,7 @@ export default function Dashboard() {
             radios={radios}
             triggerFunc={setRadioValue}
           ></RadioButtonsGroup>
+
         </div>
         <ResponsiveContainer width="100%" height="100%" minWidth="100%" minHeight="500px" className="dashboard-chart">
           <LineChart

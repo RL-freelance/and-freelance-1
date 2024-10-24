@@ -1,6 +1,6 @@
 import React, {PureComponent, useState} from 'react';
 import {ColumnDef, flexRender, getCoreRowModel, PaginationState, useReactTable} from "@tanstack/react-table";
-import {fetchData, Profile} from "../controllers/fetchData";
+import {fetchDataProfile, Profile} from "../controllers/fetchData";
 import {
   keepPreviousData,
   useQuery,
@@ -10,11 +10,16 @@ import { faUser } from "@fortawesome/free-solid-svg-icons";
 import RadioButtonsGroup from "../../core/components/RadioButtonsGroup";
 
 import "./../styles/profile_list.css";
+import TableSingle from "../../core/components/Table";
+import {fetchDataDevices} from "../../devices/controllers/fetchData-devices";
 export default function ProfileListPage() {
-  const [radioValue, setRadioValue] = useState(2);
+  let table:any;
+
+  const [radioValue, setRadioValue] = useState('sessions');
+
   const radios = [
-    { name: 'Сессии', value: 1 },
-    { name: 'Транзакции', value: 2 },
+    { name: 'Сессии', value: 'sessions' },
+    { name: 'Транзакции', value: 'transactions' },
   ];
 
   const columns = React.useMemo<ColumnDef<Profile>[]>(
@@ -60,33 +65,10 @@ export default function ProfileListPage() {
     []
   )
 
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
 
-  const dataQuery = useQuery({
-    queryKey: ['data', pagination],
-    queryFn: () => fetchData(pagination),
-    placeholderData: keepPreviousData, // don't have 0 rows flash while changing pages/loading next page
-  })
-
-  const defaultData = React.useMemo(() => [], [])
-
-  const table = useReactTable({
-    data: dataQuery.data?.rows ?? defaultData,
-    columns,
-    // pageCount: dataQuery.data?.pageCount ?? -1, //you can now pass in `rowCount` instead of pageCount and `pageCount` will be calculated internally (new in v8.13.0)
-    rowCount: dataQuery.data?.rowCount, // new in v8.13.0 - alternatively, just pass in `pageCount` directly
-    state: {
-      pagination,
-    },
-    onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: true, //we're doing manual "server-side" pagination
-    // getPaginationRowModel: getPaginationRowModel(), // If only doing manual pagination, you don't need this
-    debugTable: true,
-  })
+  const initTableFunc = (e:any) => {
+    table = e.table;
+  }
 
   return (
     <div className="profile">
@@ -150,117 +132,14 @@ export default function ProfileListPage() {
             triggerFunc={setRadioValue}
           ></RadioButtonsGroup>
         </div>
-        <div className="table">
-          <table>
-            <thead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
-                  return (
-                    <th key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder ? null : (
-                        <div>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </div>
-                      )}
-                    </th>
-                  )
-                })}
-              </tr>
-            ))}
-            </thead>
-            <tbody>
-            {table.getRowModel().rows.map(row => {
-              return (
-                <tr key={row.id} >
-                  {row.getVisibleCells().map(cell => {
-                    return (
-                      <td key={cell.id} >
 
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              )
-            })}
-            </tbody>
-          </table>
 
-          <div className="pagination flex items-center gap-2">
-            <button
-              className="border rounded p-1"
-              onClick={() => table.firstPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              {'<<'}
-            </button>
-            <button
-              className="border rounded p-1"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              {'<'}
-            </button>
-            <button
-              className="border rounded p-1"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              {'>'}
-            </button>
-            <button
-              className="border rounded p-1"
-              onClick={() => table.lastPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              {'>>'}
-            </button>
-            <span className="flex items-center gap-1">
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of{' '}
-            {table.getPageCount().toLocaleString()}
-          </strong>
-        </span>
-            <span className=" flex items-center gap-1">
-          | Go to page:
-          <input
-            type="number"
-            min="1"
-            max={table.getPageCount()}
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              table.setPageIndex(page)
-            }}
-            className="border p-1 rounded w-16"
-          />
-        </span>
-            <select
-              value={table.getState().pagination.pageSize}
-              onChange={e => {
-                table.setPageSize(Number(e.target.value))
-              }}
-            >
-              {[10, 20, 30, 40, 50].map(pageSize => (
-                <option key={pageSize} value={pageSize}>
-                  Show {pageSize}
-                </option>
-              ))}
-            </select>
+        <TableSingle
+          columnsData={columns}
+          fetchFunc={fetchDataProfile}
+          initFunc={initTableFunc}
+        />
 
-          </div>
-          <div className="loading">
-            {dataQuery.isFetching ? 'Loading...' : null}
-          </div>
-        </div>
       </div>
     </div>
   );

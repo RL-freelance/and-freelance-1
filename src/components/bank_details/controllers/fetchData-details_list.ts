@@ -13,6 +13,17 @@ export type BankDetails = {
   dellCount: number,
 }
 
+export  const defaultData: BankDetails = {
+  id: 1,
+  name:  faker.name.fullName(),
+  phone: faker.phone.number(),
+  countNumber: faker.number.int({ min: 0, max: 100 }),
+  status: "active",
+  balance: faker.number.int({ min: 0, max: 1000 }),
+  limitCount: faker.number.int({ min: 0, max: 1000 }),
+  dellCount: faker.number.int({ min: 0, max: 100 }),
+}
+
 const range = (len: number) => {
   const arr: number[] = []
   for (let i = 0; i < len; i++) {

@@ -49,7 +49,7 @@ export function makeData(...lens: number[]) {
 
 
 const data = makeData(10000);
-export async function fetchData(options: {
+export async function fetchDataProfile(options: {
   pageIndex: number
   pageSize: number
 }) {
@@ -58,6 +58,7 @@ export async function fetchData(options: {
   await new Promise(r => setTimeout(r, 1000))
 
   return {
+    allData: data,
     rows: data.slice(
       options.pageIndex * options.pageSize,
       (options.pageIndex + 1) * options.pageSize

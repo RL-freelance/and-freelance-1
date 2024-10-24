@@ -7,16 +7,6 @@
     justify-content: center;
     font-size: 12px;
 }
-.device_single .status:before {
-    content: ' ';
-    display: block;
-    width: 5px;
-    height: 5px;
-    background-color: #000;;
-    margin-right: 10px;
-    margin-left: 5px;
-    border-radius: 50%;
-}
 
 
 .device_single .status.red {
