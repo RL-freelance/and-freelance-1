@@ -1,0 +1,131 @@
+.App {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.header {
+  min-height: 100px;
+}
+.header .menu ul {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+.header .menu li {
+  margin-left: 5px;
+}
+.header .menu li:first-child {
+  margin-left: 0;
+}
+.header .menu li a {
+  text-decoration: none;
+  color: #252525;
+  font-weight: 400;
+  font-family: "Open Sans", sans-serif;
+  display: flex;
+  padding: 5px 10px;
+  align-items: center;
+  cursor: pointer;
+}
+.header .menu li a.active {
+  background-color: #80808057;
+  border-radius: 10px;
+  color: #252525;
+}
+.header .menu li span {
+  margin-left: 10px;
+}
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.header .subMenu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+
+.header .subMenu .user,
+.header .subMenu .balance {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #252525;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.header .subMenu .user.active,
+.header .subMenu .balance.active {
+  background-color: #80808057;
+  border-radius: 10px;
+  color: #252525;
+}
+.balance-add .sub-title {
+  font-size: 16px;
+  margin-top: 10px;
+  color: gray;
+  font-weight: 400;
+}
+
+.balance-add .wallet .wallet_row {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-right: 20px;
+}
+.balance-add .wallet .wallet_row input {
+  min-height: 50px;
+}
+.balance-add .wallet .wallet_row .icon {
+  border: 2px solid rgba(128, 128, 128, 0.32);
+  border-radius: 50%;
+  padding: 10px;
+  color: gray;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.balance-add .qr {
+  font-size: 16px;
+  font-weight: 400;
+  margin: 20px 0;
+}
+
+.balance-add .qr .text {
+  margin-bottom: 20px;
+}
+
+.balance-add .qr-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.balance-add .warning {
+  display: flex;
+  gap: 20px;
+  border: 2px solid rgba(128, 128, 128, 0.31);
+  padding: 10px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  border-radius: 10px;
+}
+.balance-add .warning .icon {
+  color: mediumvioletred;
+  font-size: 24px;
+}

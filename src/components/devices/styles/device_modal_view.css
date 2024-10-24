@@ -1,0 +1,29 @@
+.view-body {
+  border: 2px solid #8080804a;
+  margin: 20px;
+  border-radius: 10px;
+}
+
+.view-body .item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  width: 100%;
+  margin: 10px 0;
+  padding: 5px 0;
+  max-width: 100%;
+  border-bottom: 1px dashed #8080803d;
+  border-radius: 0;
+}
+
+.view-body .item .item_title {
+  min-width: 160px;
+  font-size: 16px;
+  color: #252525;
+}
+
+.view-body .item .item_value {
+  font-size: 14px;
+}

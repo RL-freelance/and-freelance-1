@@ -1,0 +1,28 @@
+.login-content {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.login {
+    border: 2px solid rgba(128, 128, 128, 0.38);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 600px;
+    width: 100%;
+}
+.login_form {
+    width: 100%;
+    margin-top: 20px;
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.login .footer button {
+    width: 100%;
+}
